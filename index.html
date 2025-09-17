@@ -3,333 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بحث في الأدوية - مع دعم قراءة ملف Excel</title>
+    <title>بحث في الأدوية - CSV Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* CSS remains the same as the beautiful version you approved */
+        :root {
+            --primary-color: #007bff;
+            --primary-gradient: linear-gradient(135deg, #007bff, #0056b3);
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --light-color: #f8f9fa;
+            --white-color: #ffffff;
+            --dark-color: #343a40;
+            --text-color: #495057;
+            --border-color: #dee2e6;
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --input-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            --font-family: 'Cairo', sans-serif;
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
+            font-family: var(--font-family);
+            background-color: #eef2f7;
             margin: 0;
             padding: 20px;
-            color: #333;
+            color: var(--text-color);
+            line-height: 1.6;
         }
         .container {
-            max-width: 100%;
-            margin: 0 auto;
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            overflow: hidden;
+            max-width: 1200px;
+            margin: 2rem auto;
+            background: var(--white-color);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
         }
         h1 {
             text-align: center;
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 20px;
+            color: var(--dark-color);
+            margin-bottom: 2rem;
+            font-weight: 700;
+            font-size: 2rem;
         }
-        .upload-section {
-            text-align: center;
-            margin: 15px 0;
-            padding: 15px;
-            border: 2px dashed #3498db;
-            border-radius: 8px;
-            background-color: #ecf0f1;
-            position: relative;
+        label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+            font-size: 0.9rem;
         }
-        #fileInput {
-            display: none;
-        }
-        .upload-btn {
-            background-color: #3498db;
-            color: white;
-            padding: 10px 20px;
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 12px 24px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
-            margin: 10px 5px;
-            transition: background-color 0.3s;
-            font-weight: 500;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+            background: var(--primary-gradient);
+            color: var(--white-color);
         }
-        .upload-btn:hover {
-            background-color: #2980b9;
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
         }
-        .search-section {
-            margin: 15px 0;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        .repo-btn {
+            background: linear-gradient(135deg, #6c757d, #343a40);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .repo-btn:hover {
+             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .card {
+            background: var(--light-color);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e9ecef;
+        }
+        .card h3 {
+            margin-top: 0;
+            color: var(--dark-color);
+        }
+        .card p {
+            margin-bottom: 1rem;
         }
         .search-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            align-items: flex-start;
+            gap: 1rem;
+            align-items: flex-end;
         }
         .search-field {
-            display: flex;
-            flex-direction: column;
+            flex: 1;
             min-width: 200px;
             position: relative;
         }
-        label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #2c3e50;
-            font-size: 14px;
-        }
         input[type="text"] {
             width: 100%;
-            padding: 10px 12px;
-            border: 2px solid #ddd;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-            height: 45px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--white-color);
+            box-shadow: var(--input-shadow);
         }
         input[type="text"]:focus {
-            border-color: #3498db;
             outline: none;
-        }
-        button {
-            background-color: #3498db;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 10px 5px;
-            transition: background-color 0.3s;
-            font-weight: 500;
-        }
-        button:hover {
-            background-color: #2980b9;
-        }
-        .top-companies-section {
-            margin: 15px 0;
-            padding: 15px;
-            background-color: #e8f4fd;
-            border-radius: 8px;
-            display: none;
-        }
-        .top-companies-title {
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 16px;
-        }
-        .top-companies-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-        .top-company-btn {
-            background-color: #27ae60;
-            padding: 8px 16px;
-            font-size: 14px;
-            border-radius: 4px;
-            font-weight: 500;
-        }
-        .top-company-btn:hover {
-            background-color: #219653;
-        }
-        .results-count {
-            text-align: center;
-            margin: 15px 0;
-            color: #666;
-            font-size: 14px;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.15);
         }
         .table-container {
             width: 100%;
             overflow-x: auto;
-            margin-top: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            border: 1px solid #ddd;
         }
         th, td {
-            padding: 12px 15px;
+            padding: 1rem;
             text-align: right;
-            border-bottom: 1px solid #eee;
-        }
-        th {
-            background-color: #3498db;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        tr:hover {
-            background-color: #f1f9ff;
-        }
-        .no-results {
-            text-align: center;
-            padding: 40px;
-            color: #7f8c8d;
-            font-size: 18px;
-        }
-        .status {
-            text-align: center;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 8px;
-        }
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .loading {
-            text-align: center;
-            padding: 20px;
-            font-size: 18px;
-            color: #3498db;
-        }
-        .company-suggestions {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 0 0 8px 8px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            display: none;
-        }
-        .suggestion-item {
-            padding: 10px 15px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-            transition: background-color 0.2s;
-        }
-        .suggestion-item:hover {
-            background-color: #f1f9ff;
-            color: #3498db;
-        }
-        .price-column {
-            font-weight: bold;
-            color: #27ae60;
-            font-size: 14px;
-        }
-        .developer-info {
-            text-align: center;
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            font-weight: bold;
-            color: #2c3e50;
-            font-size: 16px;
-            border: 1px solid #ddd;
-        }
-        .repo-section {
-            text-align: center;
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #e8f4fd;
-            border-radius: 8px;
-            border: 1px solid #3498db;
-        }
-        .repo-section h3 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-        .repo-btn {
-            background-color: #9b59b6;
-            margin: 10px 5px;
-        }
-        .repo-btn:hover {
-            background-color: #8e44ad;
-        }
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            .search-container {
-                flex-direction: column;
-            }
-            .search-field {
-                min-width: 100%;
-            }
-            .top-companies-list {
-                flex-direction: column;
-                align-items: center;
-            }
-            .top-company-btn {
-                width: 100%;
-            }
-            .results-count {
-                font-size: 12px;
-            }
-        }
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 18px;
-            }
-            .upload-section {
-                padding: 10px;
-            }
-            .search-section {
-                padding: 10px;
-            }
-        }
-‎        /* تحسينات لعرض الجدول على الهواتف */
-        @media (max-width: 480px) {
-            .table-container {
-                overflow-x: auto;
-            }
-            .table-container table {
-                min-width: 100%;
-            }
-            .table-container th,
-            .table-container td {
-                padding: 8px 10px;
-                font-size: 14px;
-            }
-            .table-container th {
-                font-size: 14px;
-            }
-            .table-container tr:hover {
-                background-color: #f1f9ff;
-            }
-        }
-‎        /* تنسيق موحد للجدول */
-        .table-container th,
-        .table-container td {
-            font-size: 14px;
-            line-height: 1.4;
+            border-bottom: 1px solid var(--border-color);
             vertical-align: middle;
         }
-        .table-container th {
-            font-size: 14px;
-            font-weight: bold;
+        th {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
         }
-        .table-container td {
-            font-size: 14px;
+        tr:last-child td {
+             border-bottom: none;
         }
-        .price-column {
-            font-size: 14px;
-            font-weight: bold;
-            color: #27ae60;
+        tr:hover {
+            background-color: #f1f6ff;
+        }
+        .price-column { font-weight: 700; color: var(--success-color); }
+        .no-results { text-align: center; padding: 3rem; color: #7f8c8d; font-size: 1.2rem; }
+        .developer-info {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #888;
+        }
+        .top-companies-section { display: none; }
+        .top-companies-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .top-company-btn {
+            background: var(--success-color);
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+            font-weight: 400;
+        }
+        .top-company-btn:hover {
+            background: #218838;
+             box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+        .status { padding: 1rem; margin-top: 1rem; border-radius: 8px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .loading { text-align: center; padding: 2rem; font-size: 1.2rem; color: var(--primary-color); }
+        .results-count { text-align: center; margin: 1.5rem 0; color: #666; font-size: 1rem; font-weight: 600; }
+        .company-suggestions {
+            position: absolute; top: 100%; left: 0; right: 0;
+            background: var(--white-color); border: 1px solid var(--border-color);
+            border-radius: 8px; max-height: 200px; overflow-y: auto;
+            z-index: 1000; box-shadow: 0 8px 16px rgba(0,0,0,0.1); display: none;
+        }
+        .suggestion-item { padding: 12px 15px; cursor: pointer; transition: background-color 0.2s; }
+        .suggestion-item:hover { background-color: #f1f6ff; color: var(--primary-color); }
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 1rem; margin: 1rem auto; }
+            h1 { font-size: 1.5rem; }
+            .search-container { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
@@ -337,413 +199,363 @@
     <div class="container">
         <h1>نظام البحث في الأدوية</h1>
         
-        <div class="repo-section">
+        <div class="card repo-section">
             <h3>إدارة ملفات الأسعار</h3>
-            <p>يمكنك تحميل ملف الأسعار من جهازك أو من المستودع</p>
-            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">تحميل من الجهاز</button>
-            <button class="repo-btn" onclick="loadFromRepository()">تحميل من المستودع</button>
-        </div>
-        
-        <div class="upload-section">
-            <input type="file" id="fileInput" accept=".xlsx, .xls">
+            <p>يمكنك تحميل قائمة الأسعار من جهازك مباشرة أو من المستودع المركزي على GitHub.</p>
+            <div>
+                <button id="uploadFromDeviceBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    <span>تحميل من الجهاز</span>
+                </button>
+                <button id="uploadFromRepoBtn" class="repo-btn">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                    <span>تحميل من المستودع</span>
+                </button>
+            </div>
+            <input type="file" id="fileInput" accept=".csv" style="display: none;">
             <div id="statusMessage"></div>
         </div>
         
-        <div class="top-companies-section" id="topCompaniesSection">
-            <div class="top-companies-title">أكثر الشركات تكراراً في الملف</div>
-            <div class="top-companies-list" id="topCompaniesList">
-‎                <!-- سيتم ملء الشركات الأكثر تكراراً هنا -->
-            </div>
+        <div class="card top-companies-section" id="topCompaniesSection">
+            <h3 class="top-companies-title">أكثر الشركات تكراراً</h3>
+            <div class="top-companies-list" id="topCompaniesList"></div>
         </div>
         
-        <div class="search-section">
+        <div class="card search-section">
+            <h3>فلترة وبحث</h3>
             <div class="search-container">
                 <div class="search-field">
-                    <label for="commercialName">اسم المستحضر التجاري</label>
-                    <input type="text" id="commercialName" placeholder="ادخل اسم المستحضر التجاري">
+                    <label for="commercialName">الاسم التجاري</label>
+                    <input type="text" id="commercialName" placeholder="مثال: Panadol">
                 </div>
                 <div class="search-field">
-                    <label for="scientificName">اسم المستحضر العلمي</label>
-                    <input type="text" id="scientificName" placeholder="ادخل اسم المستحضر العلمي">
+                    <label for="scientificName">الاسم العلمي</label>
+                    <input type="text" id="scientificName" placeholder="مثال: Paracetamol">
                 </div>
                 <div class="search-field">
                     <label for="companyName">اسم الشركة</label>
-                    <input type="text" id="companyName" placeholder="ابدأ بكتابة اسم الشركة..." autocomplete="off">
-                    <div class="company-suggestions" id="companySuggestions">
-‎                        <!-- سيتم ملء الاقتراحات هنا -->
-                    </div>
+                    <input type="text" id="companyName" placeholder="ابحث عن شركة..." autocomplete="off">
+                    <div class="company-suggestions" id="companySuggestions"></div>
                 </div>
-                <div class="search-field" style="min-width: auto;">
-                    <button onclick="performSearch()">بحث</button>
-                    <button onclick="clearSearch()">مسح البحث</button>
+                <div style="min-width: auto;">
+                    <button id="searchBtn">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <span>بحث</span>
+                    </button>
+                    <button id="clearSearchBtn" class="repo-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        <span>مسح</span>
+                    </button>
                 </div>
             </div>
         </div>
         
-        <div id="loadingIndicator" style="display: none;" class="loading">
-‎            جاري معالجة الملف...
-        </div>
-        
-        <div class="results-count" id="resultsCount"></div>
+        <div id="loadingIndicator" style="display: none;" class="loading"></div>
+        <div id="resultsCount" class="results-count"></div>
         
         <div class="table-container">
             <table id="medicinesTable" style="display: none;">
                 <thead>
                     <tr>
-                        <th>اسم المستحضر التجاري</th>
-                        <th>اسم المستحضر العلمي</th>
+                        <th>الاسم التجاري</th>
+                        <th>الاسم العلمي</th>
                         <th>الشكل الصيدلاني</th>
                         <th>التعبئة</th>
                         <th>الشركة المصنعة</th>
-                        <th>سعر بيع المكتب للمذخر</th>
-                        <th>سعر بيع المذخر للصيدلية</th>
-                        <th>سعر بيع الصيدلية للمواطن</th>
+                        <th>سعر المذخر</th>
+                        <th>سعر الصيدلية</th>
+                        <th>سعر المواطن</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody">
-                </tbody>
+                <tbody id="tableBody"></tbody>
             </table>
         </div>
         
-        <div class="developer-info">
-‎            تم تطوير البرنامج عن طريق الصيدلاني علي محمد حسن الناجي
-        </div>
+        <div class="developer-info">تم تطويره بواسطة الصيدلاني علي محمد حسن الناجي</div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
-        let medicinesData = [];
-        let displayedData = [];
-        let uniqueCompanies = [];
-        let companyFrequency = {};
-        let headers = [];
-        
-‎        // رابط المستودع (يمكنك تغييره لرابط مستودعك على GitHub)
-        const REPOSITORY_URL = "https://raw.githubusercontent.com/yourusername/yourrepo/main/price-list.xlsx";
-        
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            processFile(file);
-        });
-        
-        function processFile(file) {
+        (function() {
+            let medicinesData = [];
+            let uniqueCompanies = [];
+            let companyFrequency = {};
+            let headers = [];
+
+            // --- CORRECTED RAW GITHUB URL FOR YOUR CSV FILE ---
+            const REPOSITORY_URL = "https://raw.githubusercontent.com/kingkopra00/test1/main/price-list.csv";
+
+            // DOM Caching
+            const fileInput = document.getElementById('fileInput');
             const statusMessage = document.getElementById('statusMessage');
             const loadingIndicator = document.getElementById('loadingIndicator');
             const table = document.getElementById('medicinesTable');
             const topCompaniesSection = document.getElementById('topCompaniesSection');
-            const topCompaniesList = document.getElementById('topCompaniesList');
             const resultsCount = document.getElementById('resultsCount');
-            
-‎            // تعطيل حقول البحث أثناء التحميل
-            document.getElementById('commercialName').disabled = true;
-            document.getElementById('scientificName').disabled = true;
-            document.getElementById('companyName').disabled = true;
-            
-            statusMessage.innerHTML = '';
-            loadingIndicator.style.display = 'block';
-            
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    
-‎                    // الحصول على أسماء الأعمدة من الصف الأول
-                    headers = [];
-                    const range = XLSX.utils.decode_range(firstSheet['!ref']);
-                    
-‎                    // البحث عن أسماء الأعمدة في الصف الأول
-                    for (let C = range.s.c; C <= range.e.c; ++C) {
-                        const cellAddress = {c: C, r: 0};
-                        const cellRef = XLSX.utils.encode_cell(cellAddress);
-                        const cell = firstSheet[cellRef];
-                        if (cell && cell.t) {
-                            headers[C] = String(cell.v).trim();
-                        } else {
-                            headers[C] = `Column${C}`;
-                        }
-                    }
-                    
-‎                    // تحويل الورقة إلى JSON مع الحفاظ على أسماء الأعمدة الأصلية
-                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: headers, range: 1 });
-                    
-                    if (jsonData.length === 0) {
-                        throw new Error('الملف فارغ أو غير صالح');
-                    }
-                    
-‎                    // تخزين البيانات الأصلية
-                    medicinesData = jsonData;
-                    displayedData = [...medicinesData];
-                    
-‎                    // استخراج أسماء الشركات الفريدة وتكرارها
-                    extractCompanies();
-                    
-‎                    // عرض الجدول وتمكين البحث
-                    table.style.display = 'table';
-                    topCompaniesSection.style.display = 'block';
-                    
-‎                    // تمكين حقول البحث
-                    document.getElementById('commercialName').disabled = false;
-                    document.getElementById('scientificName').disabled = false;
-                    document.getElementById('companyName').disabled = false;
-                    
-‎                    // عرض البيانات
-                    displayMedicines(displayedData);
-                    
-‎                    // عرض الشركات الأكثر تكراراً
-                    displayTopCompanies();
-                    
-‎                    // رسالة نجاح
-                    statusMessage.innerHTML = `<div class="status success">تم تحميل ${medicinesData.length} سجل بنجاح!</div>`;
-                    
-                } catch (error) {
-                    console.error('Error:', error);
-                    statusMessage.innerHTML = `<div class="status error">خطأ في قراءة الملف: ${error.message}</div>`;
-                } finally {
-                    loadingIndicator.style.display = 'none';
-                }
-            };
-            
-            reader.onerror = function() {
-                loadingIndicator.style.display = 'none';
-                statusMessage.innerHTML = `<div class="status error">حدث خطأ أثناء قراءة الملف</div>`;
-            };
-            
-            reader.readAsArrayBuffer(file);
-        }
-        
-        function loadFromRepository() {
-            const statusMessage = document.getElementById('statusMessage');
-            const loadingIndicator = document.getElementById('loadingIndicator');
-            
-            statusMessage.innerHTML = '';
-            loadingIndicator.style.display = 'block';
-            
-‎            // إنشاء عنصر لتحميل الملف من المستودع
-            fetch(REPOSITORY_URL)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('فشل في تحميل الملف من المستودع. تأكد من أن الرابط صحيح وأن الملف موجود.');
-                    }
-                    return response.arrayBuffer();
-                })
-                .then(arrayBuffer => {
-                    const file = new File([arrayBuffer], "price-list.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-                    processFile(file);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    statusMessage.innerHTML = `<div class="status error">خطأ في تحميل الملف من المستودع: ${error.message}</div>`;
-                    loadingIndicator.style.display = 'none';
-                });
-        }
-        
-        function extractCompanies() {
-            companyFrequency = {};
-            uniqueCompanies = [];
-            
-            const manufacturerColumn = headers.find(h => 
-                h.includes('الشركة المصنعة') || 
-                h.includes('Manufacturer') ||
-                h.includes('الشركة')
-            );
-            
-            if (!manufacturerColumn) {
-                console.warn('لم يتم العثور على عمود الشركة المصنعة');
-                return;
-            }
-            
-            medicinesData.forEach(item => {
-                let companyName = '';
-                
-                if (item[manufacturerColumn]) {
-                    companyName = String(item[manufacturerColumn]).trim();
-                }
-                
-                if (companyName && companyName !== '') {
-                    if (!companyFrequency[companyName]) {
-                        companyFrequency[companyName] = 0;
-                        uniqueCompanies.push(companyName);
-                    }
-                    companyFrequency[companyName]++;
-                }
-            });
-            
-‎            // ترتيب الشركات حسب التكرار (من الأكثر إلى الأقل)
-            uniqueCompanies.sort((a, b) => companyFrequency[b] - companyFrequency[a]);
-        }
-        
-        function displayTopCompanies() {
-            const topCompaniesList = document.getElementById('topCompaniesList');
-            topCompaniesList.innerHTML = '';
-            
-‎            // عرض أول 5 شركات الأكثر تكراراً
-            const topCompanies = uniqueCompanies.slice(0, 5);
-            
-            topCompanies.forEach(company => {
-                const button = document.createElement('button');
-                button.className = 'top-company-btn';
-                button.textContent = `${company} (${companyFrequency[company]})`;
-                button.onclick = function() {
-                    document.getElementById('companyName').value = company;
-                    performSearch();
-                };
-                topCompaniesList.appendChild(button);
-            });
-        }
-        
-        function displayMedicines(data) {
+            const commercialNameInput = document.getElementById('commercialName');
+            const scientificNameInput = document.getElementById('scientificName');
+            const companyNameInput = document.getElementById('companyName');
+            const companySuggestions = document.getElementById('companySuggestions');
             const tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = '';
-            
-            if (data.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="8" class="no-results">لا توجد نتائج مطابقة للبحث</td></tr>';
-                return;
-            }
-            
-‎            // تحديد أسماء الأعمدة بدقة
-            const columnNames = {
-                commercialName: headers.find(h => h.includes('اسم المستحضر التجاري') || h.includes('Commercial Name')) || headers[0],
-                scientificName: headers.find(h => h.includes('اسم المستحضر العلمي') || h.includes('Scientific Name')) || headers[1],
-                pharmaceuticalForm: headers.find(h => h.includes('الشكل الصيدلاني') || h.includes('Pharmaceutical Form')) || headers[2],
-                packaging: headers.find(h => h.includes('التعبئة') || h.includes('Packaging')) || headers[3],
-                manufacturer: headers.find(h => h.includes('الشركة المصنعة') || h.includes('Manufacturer')) || headers[4],
-                officeToWarehousePrice: headers.find(h => h.includes('سعر بيع المكتب للمذخر') || h.includes('Office to Warehouse')) || headers[5],
-                warehouseToPharmacyPrice: headers.find(h => h.includes('سعر بيع المذخر للصيدلية') || h.includes('Warehouse to Pharmacy')) || headers[6],
-                pharmacyToCitizenPrice: headers.find(h => h.includes('سعر بيع الصيدلية للمواطن') || h.includes('Pharmacy to Citizen')) || headers[7]
-            };
-            
-            data.forEach(item => {
-                const row = document.createElement('tr');
-                
-‎                // الحصول على القيم مع معالجة أفضل للقيم الفارغة أو غير المعرفة
-                const getValue = (key) => {
-                    const value = item[columnNames[key]];
-                    if (value === undefined || value === null || value === '') {
-                        return '-';
-                    }
-                    return String(value);
-                };
-                
-                row.innerHTML = `
-                    <td>${getValue('commercialName')}</td>
-                    <td>${getValue('scientificName')}</td>
-                    <td>${getValue('pharmaceuticalForm')}</td>
-                    <td>${getValue('packaging')}</td>
-                    <td>${getValue('manufacturer')}</td>
-                    <td class="price-column">${getValue('officeToWarehousePrice')}</td>
-                    <td class="price-column">${getValue('warehouseToPharmacyPrice')}</td>
-                    <td class="price-column">${getValue('pharmacyToCitizenPrice')}</td>
-                `;
-                tableBody.appendChild(row);
+
+            // Event Listeners
+            document.getElementById('uploadFromDeviceBtn').addEventListener('click', () => fileInput.click());
+            document.getElementById('uploadFromRepoBtn').addEventListener('click', loadFromRepository);
+            document.getElementById('searchBtn').addEventListener('click', performSearch);
+            document.getElementById('clearSearchBtn').addEventListener('click', clearSearch);
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) processFile(file);
             });
-            
-‎            // تحديث عداد النتائج
-            const resultsCount = document.getElementById('resultsCount');
-            resultsCount.textContent = `عدد النتائج: ${data.length}`;
-        }
-        
-        function performSearch() {
-            const commercialName = document.getElementById('commercialName').value.toLowerCase();
-            const scientificName = document.getElementById('scientificName').value.toLowerCase();
-            const companyName = document.getElementById('companyName').value.toLowerCase();
-            
-‎            // تحديد أسماء الأعمدة للبحث
-            const commercialColumn = headers.find(h => h.includes('اسم المستحضر التجاري') || h.includes('Commercial Name'));
-            const scientificColumn = headers.find(h => h.includes('اسم المستحضر العلمي') || h.includes('Scientific Name'));
-            const manufacturerColumn = headers.find(h => h.includes('الشركة المصنعة') || h.includes('Manufacturer'));
-            
-            const filteredData = medicinesData.filter(item => {
-                const commercialMatch = !commercialName || 
-                    (commercialColumn && item[commercialColumn] && 
-                     String(item[commercialColumn]).toLowerCase().includes(commercialName));
-                
-                const scientificMatch = !scientificName || 
-                    (scientificColumn && item[scientificColumn] && 
-                     String(item[scientificColumn]).toLowerCase().includes(scientificName));
-                
-                const companyMatch = !companyName || 
-                    (manufacturerColumn && item[manufacturerColumn] && 
-                     String(item[manufacturerColumn]).toLowerCase().includes(companyName));
-                
-                return commercialMatch && scientificMatch && companyMatch;
-            });
-            
-            displayedData = filteredData;
-            displayMedicines(filteredData);
-        }
-        
-        function clearSearch() {
-‎            // إعادة تعيين الحقول دون إعادة تحميل الملف
-            document.getElementById('commercialName').value = '';
-            document.getElementById('scientificName').value = '';
-            document.getElementById('companyName').value = '';
-            
-‎            // عرض جميع البيانات مرة أخرى
-            displayMedicines(medicinesData);
-        }
-        
-‎        // تنفيذ البحث عند الضغط على Enter
-        document.getElementById('commercialName').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') performSearch();
-        });
-        
-        document.getElementById('scientificName').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') performSearch();
-        });
-        
-        document.getElementById('companyName').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-‎                // إخفاء قائمة الاقتراحات إذا كانت ظاهرة
-                document.getElementById('companySuggestions').style.display = 'none';
-                performSearch();
-            }
-        });
-        
-‎        // تنفيذ الإكمال التلقائي لاسم الشركة
-        document.getElementById('companyName').addEventListener('input', function(e) {
-            const inputVal = e.target.value;
-            const suggestionsDiv = document.getElementById('companySuggestions');
-            
-            if (inputVal.length >= 3) {
-‎                // تصفية الشركات بناءً على النص المدخل
-                const filteredCompanies = uniqueCompanies.filter(company => 
-                    company.toLowerCase().includes(inputVal.toLowerCase())
-                );
-                
-                if (filteredCompanies.length > 0) {
-‎                    // عرض الاقتراحات
-                    suggestionsDiv.innerHTML = '';
-                    filteredCompanies.forEach(company => {
-                        const div = document.createElement('div');
-                        div.className = 'suggestion-item';
-                        div.textContent = company;
-                        div.onclick = function() {
-                            document.getElementById('companyName').value = company;
-                            suggestionsDiv.style.display = 'none';
-                            performSearch();
-                        };
-                        suggestionsDiv.appendChild(div);
-                    });
-                    suggestionsDiv.style.display = 'block';
-                } else {
-                    suggestionsDiv.style.display = 'none';
+            commercialNameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
+            scientificNameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
+            companyNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    companySuggestions.style.display = 'none';
+                    performSearch();
                 }
-            } else {
-                suggestionsDiv.style.display = 'none';
+            });
+            companyNameInput.addEventListener('input', handleCompanyAutoComplete);
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.search-field')) {
+                    companySuggestions.style.display = 'none';
+                }
+            });
+
+            /**
+             * NEW: Parses CSV text into an array of objects.
+             * @param {string} csvText The raw CSV string.
+             * @returns {Array<Object>} Array of data objects.
+             */
+            function parseCSV(csvText) {
+                const lines = csvText.trim().split('\n');
+                if (lines.length < 2) return [];
+
+                const localHeaders = lines[0].split(',').map(h => h.trim());
+                headers = localHeaders; // Set global headers
+
+                const jsonData = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',').map(v => v.trim());
+                    if (values.length === localHeaders.length) {
+                        const entry = {};
+                        for (let j = 0; j < localHeaders.length; j++) {
+                            entry[localHeaders[j]] = values[j];
+                        }
+                        jsonData.push(entry);
+                    }
+                }
+                return jsonData;
             }
-        });
-        
-‎        // إخفاء قائمة الاقتراحات عند النقر خارجها
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.search-field')) {
-                document.getElementById('companySuggestions').style.display = 'none';
+
+            /**
+             * NEW: Central function to process parsed data and update UI.
+             * @param {Array<Object>} jsonData The array of data from CSV.
+             */
+            function processData(jsonData) {
+                if (jsonData.length === 0) {
+                     statusMessage.innerHTML = `<div class="status error">الملف فارغ أو لا يمكن قراءته.</div>`;
+                     return;
+                }
+                
+                medicinesData = jsonData;
+                extractCompanies();
+                displayMedicines(medicinesData);
+                displayTopCompanies();
+
+                table.style.display = 'table';
+                topCompaniesSection.style.display = 'block';
+                toggleSearchFields(false); // Enable search fields
+                statusMessage.innerHTML = `<div class="status success">تم تحميل ${medicinesData.length} سجل بنجاح!</div>`;
             }
-        });
+
+            function processFile(file) {
+                toggleSearchFields(true);
+                statusMessage.innerHTML = '';
+                loadingIndicator.style.display = 'block';
+                loadingIndicator.textContent = `جاري معالجة ملف: ${file.name}...`;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const csvText = e.target.result;
+                        const jsonData = parseCSV(csvText);
+                        processData(jsonData);
+                    } catch (error) {
+                        console.error('Error:', error);
+                        statusMessage.innerHTML = `<div class="status error">خطأ في قراءة الملف: ${error.message}</div>`;
+                    } finally {
+                        loadingIndicator.style.display = 'none';
+                    }
+                };
+                reader.onerror = () => {
+                    loadingIndicator.style.display = 'none';
+                    statusMessage.innerHTML = `<div class="status error">حدث خطأ أثناء قراءة الملف.</div>`;
+                };
+                reader.readAsText(file); // Read file as text for CSV
+            }
+            
+            function loadFromRepository() {
+                statusMessage.innerHTML = '';
+                loadingIndicator.style.display = 'block';
+                loadingIndicator.textContent = 'جاري التحميل من المستودع...';
+                
+                fetch(REPOSITORY_URL)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`فشل التحميل (Status: ${response.status}). تأكد من صحة الرابط.`);
+                        }
+                        return response.text(); // Fetch as text for CSV
+                    })
+                    .then(csvText => {
+                        const jsonData = parseCSV(csvText);
+                        processData(jsonData);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        statusMessage.innerHTML = `<div class="status error">خطأ تحميل من المستودع: ${error.message}</div>`;
+                    })
+                    .finally(() => {
+                        loadingIndicator.style.display = 'none';
+                    });
+            }
+
+            // The rest of the functions (findHeader, extractCompanies, displayMedicines, etc.)
+            // work perfectly with the new data structure and do not need changes.
+            
+            function findHeader(possibleNames) {
+                // Find the first header that includes one of the possible names
+                return headers.find(h => possibleNames.some(name => h.toLowerCase().includes(name.toLowerCase())));
+            }
+
+            function extractCompanies() {
+                companyFrequency = {};
+                const manufacturerColumn = findHeader(['الشركة المصنعة', 'manufacturer', 'الشركة', 'company']);
+                if (!manufacturerColumn) return console.warn('لم يتم العثور على عمود الشركة المصنعة');
+
+                medicinesData.forEach(item => {
+                    const companyName = String(item[manufacturerColumn] || '').trim();
+                    if (companyName) {
+                        companyFrequency[companyName] = (companyFrequency[companyName] || 0) + 1;
+                    }
+                });
+                uniqueCompanies = Object.keys(companyFrequency).sort((a, b) => companyFrequency[b] - companyFrequency[a]);
+            }
+
+            function displayTopCompanies() {
+                const topCompaniesList = document.getElementById('topCompaniesList');
+                topCompaniesList.innerHTML = '';
+                uniqueCompanies.slice(0, 5).forEach(company => {
+                    const button = document.createElement('button');
+                    button.className = 'top-company-btn';
+                    button.textContent = `${company} (${companyFrequency[company]})`;
+                    button.onclick = () => {
+                        companyNameInput.value = company;
+                        performSearch();
+                    };
+                    topCompaniesList.appendChild(button);
+                });
+            }
+
+            function displayMedicines(data) {
+                tableBody.innerHTML = '';
+                if (data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="8" class="no-results">لا توجد نتائج مطابقة للبحث</td></tr>';
+                } else {
+                    const columnNames = {
+                        commercialName: findHeader(['اسم المستحضر التجاري', 'commercial name']) || headers[0],
+                        scientificName: findHeader(['اسم المستحضر العلمي', 'scientific name']) || headers[1],
+                        pharmaceuticalForm: findHeader(['الشكل الصيدلاني', 'pharmaceutical form']) || headers[2],
+                        packaging: findHeader(['التعبئة', 'packaging']) || headers[3],
+                        manufacturer: findHeader(['الشركة المصنعة', 'manufacturer']) || headers[4],
+                        officeToWarehousePrice: findHeader(['سعر بيع المكتب للمذخر', 'office to warehouse']) || headers[5],
+                        warehouseToPharmacyPrice: findHeader(['سعر بيع المذخر للصيدلية', 'warehouse to pharmacy']) || headers[6],
+                        pharmacyToCitizenPrice: findHeader(['سعر بيع الصيدلية للمواطن', 'pharmacy to citizen']) || headers[7]
+                    };
+                    
+                    const fragment = document.createDocumentFragment();
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+                        const getValue = (key) => String(item[columnNames[key]] || '-');
+                        row.innerHTML = `
+                            <td>${getValue('commercialName')}</td>
+                            <td>${getValue('scientificName')}</td>
+                            <td>${getValue('pharmaceuticalForm')}</td>
+                            <td>${getValue('packaging')}</td>
+                            <td>${getValue('manufacturer')}</td>
+                            <td class="price-column">${getValue('officeToWarehousePrice')}</td>
+                            <td class="price-column">${getValue('warehouseToPharmacyPrice')}</td>
+                            <td class="price-column">${getValue('pharmacyToCitizenPrice')}</td>
+                        `;
+                        fragment.appendChild(row);
+                    });
+                    tableBody.appendChild(fragment);
+                }
+                resultsCount.textContent = `تم العثور على ${data.length} نتيجة`;
+            }
+
+            function performSearch() {
+                const commercialName = commercialNameInput.value.toLowerCase().trim();
+                const scientificName = scientificNameInput.value.toLowerCase().trim();
+                const companyName = companyNameInput.value.toLowerCase().trim();
+                
+                if (!commercialName && !scientificName && !companyName) {
+                    displayMedicines(medicinesData);
+                    return;
+                }
+
+                const commercialColumn = findHeader(['اسم المستحضر التجاري', 'commercial name']);
+                const scientificColumn = findHeader(['اسم المستحضر العلمي', 'scientific name']);
+                const manufacturerColumn = findHeader(['الشركة المصنعة', 'manufacturer']);
+
+                const filteredData = medicinesData.filter(item => {
+                    const commercialMatch = !commercialName || (commercialColumn && String(item[commercialColumn] || '').toLowerCase().includes(commercialName));
+                    const scientificMatch = !scientificName || (scientificColumn && String(item[scientificColumn] || '').toLowerCase().includes(scientificName));
+                    const companyMatch = !companyName || (manufacturerColumn && String(item[manufacturerColumn] || '').toLowerCase().includes(companyName));
+                    return commercialMatch && scientificMatch && companyMatch;
+                });
+                displayMedicines(filteredData);
+            }
+
+            function clearSearch() {
+                commercialNameInput.value = '';
+                scientificNameInput.value = '';
+                companyNameInput.value = '';
+                displayMedicines(medicinesData);
+            }
+            
+            function handleCompanyAutoComplete(e) {
+                const inputVal = e.target.value.toLowerCase();
+                companySuggestions.innerHTML = '';
+                if (inputVal.length >= 2) {
+                    const filteredCompanies = uniqueCompanies.filter(company => company.toLowerCase().includes(inputVal));
+                    if (filteredCompanies.length > 0) {
+                        filteredCompanies.slice(0, 10).forEach(company => {
+                            const div = document.createElement('div');
+                            div.className = 'suggestion-item';
+                            div.textContent = company;
+                            div.onclick = () => {
+                                companyNameInput.value = company;
+                                companySuggestions.style.display = 'none';
+                                performSearch();
+                            };
+                            companySuggestions.appendChild(div);
+                        });
+                        companySuggestions.style.display = 'block';
+                    } else {
+                        companySuggestions.style.display = 'none';
+                    }
+                } else {
+                    companySuggestions.style.display = 'none';
+                }
+            }
+
+            function toggleSearchFields(disabled) {
+                commercialNameInput.disabled = disabled;
+                scientificNameInput.disabled = disabled;
+                companyNameInput.disabled = disabled;
+            }
+
+        })();
     </script>
 </body>
 </html>
