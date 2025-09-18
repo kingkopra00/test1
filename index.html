@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بحث في الأدوية - يدعم Excel و CSV</title>
+    <title>بحث في الأدوية - يدعم Excel (XLSX)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        /* CSS remains the same from the beautiful version */
         :root {
             --primary-color: #007bff;
             --primary-gradient: linear-gradient(135deg, #007bff, #0056b3);
@@ -113,7 +112,7 @@
         
         <div class="card repo-section">
             <h3>إدارة ملفات الأسعار</h3>
-            <p>يمكنك تحميل قائمة الأسعار (Excel أو CSV) من جهازك مباشرة أو من المستودع.</p>
+            <p>يمكنك تحميل قائمة الأسعار (ملف Excel بصيغة XLSX) من جهازك مباشرة أو من المستودع.</p>
             <div>
                 <button id="uploadFromDeviceBtn" class="upload-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
@@ -124,7 +123,7 @@
                     <span>تحميل من المستودع</span>
                 </button>
             </div>
-            <input type="file" id="fileInput" accept=".csv, .xlsx, .xls" style="display: none;">
+            <input type="file" id="fileInput" accept=".xlsx" style="display: none;">
             <div id="statusMessage"></div>
         </div>
         
@@ -151,7 +150,7 @@
                 </div>
                 <div style="min-width: auto;">
                     <button id="searchBtn" class="search-btn">
-                         <svg xmlns="http://www.w.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         <span>بحث</span>
                     </button>
                     <button id="clearSearchBtn" class="clear-btn">
@@ -193,12 +192,8 @@
             let companyFrequency = {};
             let globalHeaders = [];
 
-            // --- REPOSITORY URL CONFIGURATION ---
-            // Choose which file to load by uncommenting ONE of the lines below.
-            // const REPOSITORY_URL = "https://raw.githubusercontent.com/kingkopra00/test1/main/price-list.xlsx";
-";
-            const REPOSITORY_URL = "https://raw.githubusercontent.com/kingkopra00/test1/main/price-list.csv";
-
+            // --- REPOSITORY URL CONFIGURATION (Corrected Link) ---
+            const REPOSITORY_URL = "https://raw.githubusercontent.com/kingkopra00/test1/main/price-list.xlsx";
 
             // --- DOM Elements ---
             const fileInput = document.getElementById('fileInput');
@@ -224,24 +219,21 @@
                 const file = e.target.files[0];
                 if (!file) return;
                 
-                toggleUI(true, `جاري معالجة: ${file.name}...`);
                 const fileExtension = file.name.split('.').pop().toLowerCase();
+                if (fileExtension !== 'xlsx') {
+                    handleError(new Error('صيغة الملف غير مدعومة. يرجى تحميل ملف بصيغة XLSX فقط.'), 'خطأ في نوع الملف');
+                    return;
+                }
+
+                toggleUI(true, `جاري معالجة: ${file.name}...`);
                 const reader = new FileReader();
 
                 reader.onload = (event) => {
                     try {
-                        let jsonData = [];
-                        if (['xlsx', 'xls'].includes(fileExtension)) {
-                            const data = new Uint8Array(event.target.result);
-                            const workbook = XLSX.read(data, { type: 'array' });
-                            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                            jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                        } else if (fileExtension === 'csv') {
-                            const text = event.target.result;
-                            jsonData = parseCSV(text);
-                        } else {
-                            throw new Error('صيغة الملف غير مدعومة.');
-                        }
+                        const data = new Uint8Array(event.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
                         processData(jsonData);
                     } catch (error) {
                         handleError(error, "خطأ في قراءة الملف");
@@ -249,56 +241,24 @@
                 };
 
                 reader.onerror = () => handleError(new Error("لا يمكن قراءة الملف."), "خطأ");
-
-                if (['xlsx', 'xls'].includes(fileExtension)) {
-                    reader.readAsArrayBuffer(file);
-                } else {
-                    reader.readAsText(file);
-                }
+                reader.readAsArrayBuffer(file);
             }
 
             function loadFromRepository() {
                 toggleUI(true, 'جاري التحميل من المستودع...');
-                const fileExtension = REPOSITORY_URL.split('.').pop().toLowerCase();
-
+                
                 fetch(REPOSITORY_URL)
                     .then(response => {
                         if (!response.ok) throw new Error(`فشل التحميل (Status: ${response.status})`);
-                        
-                        if (['xlsx', 'xls'].includes(fileExtension)) {
-                            return response.arrayBuffer();
-                        } else if (fileExtension === 'csv') {
-                            return response.text();
-                        } else {
-                            throw new Error("صيغة الملف في الرابط غير مدعومة.");
-                        }
+                        return response.arrayBuffer(); // Always expect binary data for xlsx
                     })
                     .then(data => {
-                        let jsonData = [];
-                        if (typeof data === 'string') { // CSV data
-                            jsonData = parseCSV(data);
-                        } else { // Excel data (ArrayBuffer)
-                            const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
-                            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                            jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                        }
+                        const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
                         processData(jsonData);
                     })
                     .catch(error => handleError(error, "خطأ تحميل من المستودع"));
-            }
-
-            function parseCSV(text) {
-                const lines = text.trim().split(/\r?\n/);
-                if (lines.length < 2) return [];
-                const headers = lines[0].split(',').map(h => h.trim());
-                return lines.slice(1).map(line => {
-                    const values = line.split(',').map(v => v.trim());
-                    let entry = {};
-                    headers.forEach((header, i) => {
-                        entry[header] = values[i];
-                    });
-                    return entry;
-                });
             }
 
             function processData(jsonData) {
@@ -430,8 +390,6 @@
                 statusMessage.innerHTML = `<div class="status error">${context}: ${error.message}</div>`;
                 toggleUI(false);
             }
-            
-            // Other functions like autocomplete can be added here as before.
 
         })();
     </script>
