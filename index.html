@@ -3,395 +3,453 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بحث في الأدوية - يدعم Excel (XLSX)</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>نظام البحث الدوائي الشامل</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
-            --primary-color: #007bff;
-            --primary-gradient: linear-gradient(135deg, #007bff, #0056b3);
-            --secondary-color: #6c757d;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --light-color: #f8f9fa;
-            --white-color: #ffffff;
-            --dark-color: #343a40;
-            --text-color: #495057;
-            --border-color: #dee2e6;
-            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-            --input-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            --font-family: 'Cairo', sans-serif;
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+            --font: 'Cairo', sans-serif;
         }
+
         body {
-            font-family: var(--font-family);
-            background-color: #eef2f7;
+            font-family: var(--font);
+            background-color: var(--bg);
+            color: var(--text-main);
             margin: 0;
             padding: 20px;
-            color: var(--text-color);
             line-height: 1.6;
         }
+
         .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            background: var(--white-color);
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: var(--card-shadow);
+            max-width: 1280px;
+            margin: 0 auto;
         }
-        h1 {
+
+        header {
             text-align: center;
-            color: var(--dark-color);
             margin-bottom: 2rem;
-            font-weight: 700;
-            font-size: 2rem;
+            padding: 1rem;
         }
-        button {
+        
+        header h1 {
+            color: var(--primary-dark);
+            font-size: 2rem;
+            margin: 0;
+            font-weight: 800;
+        }
+        
+        header p {
+            color: var(--secondary);
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .controls-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+            gap: 8px;
             padding: 12px 24px;
-            border: none;
             border-radius: 8px;
+            border: none;
+            font-family: var(--font);
+            font-weight: 700;
             cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        .upload-btn, .search-btn {
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
-            background: var(--primary-gradient);
-            color: var(--white-color);
+
+        .btn:active { transform: scale(0.98); }
+
+        .btn-upload { background: var(--primary); color: white; }
+        .btn-upload:hover { background: var(--primary-dark); }
+
+        .btn-github { background: #24292f; color: white; }
+        .btn-github:hover { background: #000; }
+
+        .btn-clear { background: var(--danger); color: white; }
+        .btn-clear:hover { background: #dc2626; }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
         }
-        .upload-btn:hover, .search-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: var(--secondary);
+            font-size: 0.9rem;
         }
-        .repo-btn, .clear-btn {
-            background: linear-gradient(135deg, #6c757d, #343a40);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-             color: var(--white-color);
-        }
-        .repo-btn:hover, .clear-btn:hover {
-             transform: translateY(-3px);
-             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
-        .card {
-            background: var(--light-color);
-            padding: 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 1.5rem;
-            border: 1px solid #e9ecef;
-        }
-        .card h3 { margin-top: 0; color: var(--dark-color); }
-        .table-container {
+
+        .input-group input {
             width: 100%;
-            overflow-x: auto;
-            margin-top: 1.5rem;
-            border-radius: 10px;
-            box-shadow: var(--card-shadow);
-            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: var(--font);
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
         }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 1rem; text-align: right; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
-        th { background-color: var(--light-color); color: var(--dark-color); font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background-color: #f1f6ff; }
-        .developer-info { text-align: center; margin-top: 2rem; font-size: 0.9rem; color: #888; }
-        .status { padding: 1rem; margin-top: 1rem; border-radius: 8px; }
-        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .loading { text-align: center; padding: 2rem; font-size: 1.2rem; color: var(--primary-color); }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid #e2e8f0;
+            max-height: 650px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+            background: white;
+        }
+
+        thead th {
+            background: #f8fafc;
+            color: var(--text-main);
+            padding: 16px;
+            text-align: right;
+            font-weight: 800;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+            color: #334155;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .price-tag {
+            font-weight: 700;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            direction: ltr;
+            text-align: left;
+            display: block;
+        }
+        .price-pharmacy { color: var(--primary); }
+        .price-public { color: var(--danger); font-size: 1.1em; }
+
+        .status-bar {
+            text-align: center;
+            margin: 10px 0;
+            font-weight: 600;
+            min-height: 25px;
+        }
+
+        .loader {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--secondary);
+        }
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h1>نظام البحث في الأدوية</h1>
-        
-        <div class="card repo-section">
-            <h3>إدارة ملفات الأسعار</h3>
-            <p>يمكنك تحميل قائمة الأسعار (ملف Excel بصيغة XLSX) من جهازك مباشرة أو من المستودع.</p>
-            <div>
-                <button id="uploadFromDeviceBtn" class="upload-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                    <span>تحميل من الجهاز</span>
+        <header>
+            <h1>نظام البحث الدوائي الشامل</h1>
+            <p>بحث سريع ودقيق في قوائم الأدوية والأسعار</p>
+        </header>
+
+        <div class="card">
+            <div class="controls-area">
+                <button class="btn btn-upload" onclick="document.getElementById('fileInput').click()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    رفع ملف من الجهاز
                 </button>
-                <button id="uploadFromRepoBtn" class="repo-btn">
-                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
-                    <span>تحميل من المستودع</span>
+                <input type="file" id="fileInput" accept=".xlsx" style="display: none;" onchange="handleFileUpload(this)">
+
+                <button class="btn btn-github" onclick="loadFromGithub()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                    استيراد من GitHub
+                </button>
+
+                <button class="btn btn-clear" onclick="clearData()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                    مسح البيانات
                 </button>
             </div>
-            <input type="file" id="fileInput" accept=".xlsx" style="display: none;">
-            <div id="statusMessage"></div>
-        </div>
-        
-        <div class="card top-companies-section" id="topCompaniesSection" style="display:none;">
-            <h3 class="top-companies-title">أكثر الشركات تكراراً</h3>
-            <div class="top-companies-list" id="topCompaniesList" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;"></div>
-        </div>
-        
-        <div class="card search-section">
-            <h3>فلترة وبحث</h3>
-            <div class="search-container" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;">
-                 <div class="search-field" style="flex: 1; min-width: 200px; position: relative;">
-                    <label for="commercialName">الاسم التجاري</label>
-                    <input type="text" id="commercialName" placeholder="مثال: Panadol">
-                </div>
-                <div class="search-field" style="flex: 1; min-width: 200px; position: relative;">
-                    <label for="scientificName">الاسم العلمي</label>
-                    <input type="text" id="scientificName" placeholder="مثال: Paracetamol">
-                </div>
-                <div class="search-field" style="flex: 1; min-width: 200px; position: relative;">
-                    <label for="companyName">اسم الشركة</label>
-                    <input type="text" id="companyName" placeholder="ابحث عن شركة..." autocomplete="off">
-                    <div id="companySuggestions" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #dee2e6; border-radius: 8px; max-height: 200px; overflow-y: auto; z-index: 1000; box-shadow: 0 8px 16px rgba(0,0,0,0.1); display: none;"></div>
-                </div>
-                <div style="min-width: auto;">
-                    <button id="searchBtn" class="search-btn">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <span>بحث</span>
-                    </button>
-                    <button id="clearSearchBtn" class="clear-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                        <span>مسح</span>
-                    </button>
-                </div>
-            </div>
+            
+            <div class="loader" id="loader"></div>
+            <div id="statusMsg" class="status-bar">يرجى اختيار مصدر البيانات للبدء</div>
         </div>
 
-        <div id="loadingIndicator" style="display: none;" class="loading"></div>
-        <div id="resultsCount" class="results-count" style="text-align: center; margin: 1.5rem 0; color: #666; font-size: 1rem; font-weight: 600;"></div>
-        
+        <div class="card">
+            <div class="search-grid">
+                <div class="input-group">
+                    <label>الاسم التجاري (Commercial)</label>
+                    <input type="text" id="searchCommercial" placeholder="اكتب اسم الدواء..." onkeyup="performSearch()">
+                </div>
+                <div class="input-group">
+                    <label>الاسم العلمي (Scientific)</label>
+                    <input type="text" id="searchScientific" placeholder="اكتب المادة العلمية..." onkeyup="performSearch()">
+                </div>
+                <div class="input-group">
+                    <label>الشركة المصنعة (Company)</label>
+                    <input type="text" id="searchCompany" placeholder="اسم الشركة..." onkeyup="performSearch()">
+                </div>
+            </div>
+            <div id="countMsg" style="text-align: left; margin-top: 10px; color: var(--secondary); font-size: 0.9rem;"></div>
+        </div>
+
         <div class="table-container">
-            <table id="medicinesTable" style="display: none;">
+            <table id="medicinesTable">
                 <thead>
                     <tr>
-                        <th>الاسم التجاري</th>
-                        <th>الاسم العلمي</th>
-                        <th>الشكل الصيدلاني</th>
-                        <th>التعبئة</th>
-                        <th>الشركة المصنعة</th>
-                        <th>سعر المذخر</th>
-                        <th>سعر الصيدلية</th>
-                        <th>سعر المواطن</th>
+                        <th style="width: 25%">الاسم التجاري</th>
+                        <th style="width: 25%">الاسم العلمي</th>
+                        <th style="width: 20%">الشركة</th>
+                        <th style="width: 15%">سعر الصيدلية</th>
+                        <th style="width: 15%">سعر المواطن</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody"></tbody>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <p>لا توجد بيانات حالياً. يرجى رفع ملف أو الاستيراد من المستودع.</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         </div>
-        
-        <div class="developer-info">تم تطويره بواسطة الصيدلاني علي محمد حسن الناجي</div>
     </div>
 
     <script>
-        (function() {
-            let medicinesData = [];
-            let uniqueCompanies = [];
-            let companyFrequency = {};
-            let globalHeaders = [];
+        let medicinesData = [];
+        let columnMapping = {};
 
-            // --- REPOSITORY URL CONFIGURATION (Corrected Link) ---
-            const REPOSITORY_URL = "https://raw.githubusercontent.com/kingkopra00/test1/main/price-list.xlsx";
+        const GITHUB_URL = "https://raw.githubusercontent.com/kingkopra00/find-drug/main/price-list.xlsx";
 
-            // --- DOM Elements ---
-            const fileInput = document.getElementById('fileInput');
-            const statusMessage = document.getElementById('statusMessage');
-            const loadingIndicator = document.getElementById('loadingIndicator');
-            const table = document.getElementById('medicinesTable');
-            const searchInputs = {
-                commercial: document.getElementById('commercialName'),
-                scientific: document.getElementById('scientificName'),
-                company: document.getElementById('companyName')
+        // دالة تنظيف وتنسيق السعر الجديدة (الحل للمشكلة)
+        function cleanAndFormatPrice(rawPrice) {
+            if (!rawPrice) return '-';
+            
+            // 1. تحويل القيمة لنص
+            let strPrice = String(rawPrice);
+            
+            // 2. إزالة أي شيء ليس رقماً أو نقطة عشرية (يحذف الفواصل والمسافات والحروف)
+            let cleanStr = strPrice.replace(/[^0-9.]/g, '');
+            
+            // 3. التحويل لرقم حقيقي
+            let finalNumber = parseFloat(cleanStr);
+            
+            // 4. التحقق مما إذا كانت النتيجة رقماً صالحاً
+            if (isNaN(finalNumber)) return '-';
+            
+            // 5. التنسيق
+            return finalNumber.toLocaleString('en-US', {maximumFractionDigits: 0});
+        }
+
+        function handleFileUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            readFile(file);
+        }
+
+        async function loadFromGithub() {
+            setLoading(true, "جاري الاتصال بـ GitHub وسحب الملف...");
+            try {
+                const response = await fetch(GITHUB_URL);
+                if (!response.ok) throw new Error("فشل تحميل الملف من المستودع");
+                const arrayBuffer = await response.arrayBuffer();
+                processData(arrayBuffer);
+                setLoading(false, `<span style="color:var(--success)">✅ تم استيراد price-list.xlsx بنجاح</span>`);
+            } catch (error) {
+                console.error(error);
+                setLoading(false, `<span style="color:var(--danger)">❌ حدث خطأ: ${error.message}</span>`);
+            }
+        }
+
+        function readFile(file) {
+            setLoading(true, `جاري قراءة: ${file.name}...`);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                processData(e.target.result);
+                setLoading(false, `<span style="color:var(--success)">✅ تم تحميل الملف المحلي بنجاح</span>`);
             };
-            
-            // --- Event Listeners ---
-            document.getElementById('uploadFromDeviceBtn').addEventListener('click', () => fileInput.click());
-            document.getElementById('uploadFromRepoBtn').addEventListener('click', loadFromRepository);
-            document.getElementById('searchBtn').addEventListener('click', performSearch);
-            document.getElementById('clearSearchBtn').addEventListener('click', clearSearch);
-            fileInput.addEventListener('change', handleFileSelect);
+            reader.onerror = () => setLoading(false, "حدث خطأ أثناء قراءة الملف");
+            reader.readAsArrayBuffer(file);
+        }
 
-            // --- Core Functions ---
-            
-            function handleFileSelect(e) {
-                const file = e.target.files[0];
-                if (!file) return;
+        function processData(buffer) {
+            try {
+                const data = new Uint8Array(buffer);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
                 
-                const fileExtension = file.name.split('.').pop().toLowerCase();
-                if (fileExtension !== 'xlsx') {
-                    handleError(new Error('صيغة الملف غير مدعومة. يرجى تحميل ملف بصيغة XLSX فقط.'), 'خطأ في نوع الملف');
-                    return;
-                }
+                const rawJson = XLSX.utils.sheet_to_json(sheet);
+                const headerJson = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-                toggleUI(true, `جاري معالجة: ${file.name}...`);
-                const reader = new FileReader();
-
-                reader.onload = (event) => {
-                    try {
-                        const data = new Uint8Array(event.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                        processData(jsonData);
-                    } catch (error) {
-                        handleError(error, "خطأ في قراءة الملف");
-                    }
-                };
-
-                reader.onerror = () => handleError(new Error("لا يمكن قراءة الملف."), "خطأ");
-                reader.readAsArrayBuffer(file);
-            }
-
-            function loadFromRepository() {
-                toggleUI(true, 'جاري التحميل من المستودع...');
-                
-                fetch(REPOSITORY_URL)
-                    .then(response => {
-                        if (!response.ok) throw new Error(`فشل التحميل (Status: ${response.status})`);
-                        return response.arrayBuffer(); // Always expect binary data for xlsx
-                    })
-                    .then(data => {
-                        const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
-                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                        processData(jsonData);
-                    })
-                    .catch(error => handleError(error, "خطأ تحميل من المستودع"));
-            }
-
-            function processData(jsonData) {
-                if (!jsonData || jsonData.length === 0) {
-                    throw new Error("الملف فارغ أو لا يحتوي على بيانات.");
-                }
-                
-                medicinesData = jsonData;
-                globalHeaders = Object.keys(medicinesData[0]);
-                
-                // Update UI and data processing
-                extractCompanies();
-                displayMedicines(medicinesData);
-                document.getElementById('topCompaniesSection').style.display = 'block';
-                displayTopCompanies();
-                table.style.display = 'table';
-                statusMessage.innerHTML = `<div class="status success">تم تحميل ${medicinesData.length} سجل بنجاح!</div>`;
-                toggleUI(false);
-            }
-
-            function displayMedicines(data) {
-                const tableBody = document.getElementById('tableBody');
-                const resultsCount = document.getElementById('resultsCount');
-                tableBody.innerHTML = '';
-
-                if (data.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 2rem;">لا توجد نتائج مطابقة للبحث</td></tr>';
+                if (rawJson.length > 0) {
+                    medicinesData = rawJson;
+                    mapColumns(headerJson[0]);
+                    performSearch();
                 } else {
-                    const fragment = document.createDocumentFragment();
-                    const columnNames = {
-                        commercial: findHeader(['اسم المستحضر التجاري', 'commercial name']),
-                        scientific: findHeader(['اسم المستحضر العلمي', 'scientific name']),
-                        form: findHeader(['الشكل الصيدلاني', 'pharmaceutical form']),
-                        packaging: findHeader(['التعبئة', 'packaging']),
-                        manufacturer: findHeader(['الشركة المصنعة', 'manufacturer']),
-                        price1: findHeader(['سعر بيع المكتب للمذخر']),
-                        price2: findHeader(['سعر بيع المذخر للصيدلية']),
-                        price3: findHeader(['سعر بيع الصيدلية للمواطن'])
-                    };
-
-                    data.forEach(item => {
-                        const row = document.createElement('tr');
-                        const getValue = key => String(item[columnNames[key]] || '-');
-                        row.innerHTML = `
-                            <td>${getValue('commercial')}</td>
-                            <td>${getValue('scientific')}</td>
-                            <td>${getValue('form')}</td>
-                            <td>${getValue('packaging')}</td>
-                            <td>${getValue('manufacturer')}</td>
-                            <td style="font-weight:700; color: #28a745;">${getValue('price1')}</td>
-                            <td style="font-weight:700; color: #28a745;">${getValue('price2')}</td>
-                            <td style="font-weight:700; color: #28a745;">${getValue('price3')}</td>
-                        `;
-                        fragment.appendChild(row);
-                    });
-                    tableBody.appendChild(fragment);
+                    alert("الملف فارغ!");
                 }
-                resultsCount.textContent = `تم العثور على ${data.length} نتيجة`;
+            } catch (e) {
+                alert("خطأ في معالجة ملف الإكسل: " + e.message);
             }
+        }
 
-            function extractCompanies() {
-                const manufacturerColumn = findHeader(['الشركة المصنعة', 'manufacturer', 'company']);
-                if (!manufacturerColumn) return;
+        function mapColumns(headers) {
+            const clean = str => String(str).replace(/[\s\r\n\t]+/g, '').toLowerCase();
+            const findKey = (keywords) => {
+                return headers.find(h => {
+                    if (!h) return false;
+                    const hClean = clean(h);
+                    return keywords.some(k => hClean.includes(clean(k)));
+                });
+            };
+
+            columnMapping = {
+                commercial: findKey(['المستحرض', 'المستحضرالتجاري', 'commercial', 'trade', 'itemname']),
+                scientific: findKey(['المستحضرالعلمي', 'scientific', 'generic']),
+                company: findKey(['الشركة', 'company', 'manufacturer']),
+                pricePhar: findKey(['المذخرللصيدلية', 'pharmacyprice', 'سعرالصيدلية']),
+                pricePub: findKey(['الصيدليةللمواطن', 'publicprice', 'سعرالجمهور', 'سعرالمواطن'])
+            };
+        }
+
+        function performSearch() {
+            if (medicinesData.length === 0) return;
+
+            const qComm = document.getElementById('searchCommercial').value.toLowerCase();
+            const qSci = document.getElementById('searchScientific').value.toLowerCase();
+            const qComp = document.getElementById('searchCompany').value.toLowerCase();
+            const tbody = document.getElementById('tableBody');
+            
+            tbody.innerHTML = '';
+            const keys = columnMapping;
+
+            const filtered = medicinesData.filter(row => {
+                const valComm = keys.commercial ? String(row[keys.commercial] || '').toLowerCase() : '';
+                const valSci = keys.scientific ? String(row[keys.scientific] || '').toLowerCase() : '';
+                const valComp = keys.company ? String(row[keys.company] || '').toLowerCase() : '';
+
+                return valComm.includes(qComm) && valSci.includes(qSci) && valComp.includes(qComp);
+            });
+
+            document.getElementById('countMsg').innerText = `تم العثور على ${filtered.length} نتيجة`;
+
+            filtered.slice(0, 150).forEach(row => {
+                const tr = document.createElement('tr');
                 
-                companyFrequency = medicinesData.reduce((acc, item) => {
-                    const companyName = String(item[manufacturerColumn] || '').trim();
-                    if (companyName) acc[companyName] = (acc[companyName] || 0) + 1;
-                    return acc;
-                }, {});
+                // استخدام دالة التنسيق الجديدة هنا
+                const formattedPhar = cleanAndFormatPrice(row[keys.pricePhar]);
+                const formattedPub = cleanAndFormatPrice(row[keys.pricePub]);
+                
+                tr.innerHTML = `
+                    <td style="font-weight:700; color:var(--text-main);">${row[keys.commercial] || '-'}</td>
+                    <td style="color:#475569;">${row[keys.scientific] || '-'}</td>
+                    <td><span style="background:#e2e8f0; padding:2px 8px; border-radius:4px; font-size:0.85em;">${row[keys.company] || '-'}</span></td>
+                    <td><span class="price-tag price-pharmacy">${formattedPhar}</span></td>
+                    <td><span class="price-tag price-public">${formattedPub}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
 
-                uniqueCompanies = Object.keys(companyFrequency).sort((a, b) => companyFrequency[b] - companyFrequency[a]);
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 3rem; color: var(--secondary);">لا توجد نتائج مطابقة للبحث</td></tr>';
             }
-            
-            function displayTopCompanies() {
-                const list = document.getElementById('topCompaniesList');
-                list.innerHTML = '';
-                uniqueCompanies.slice(0, 5).forEach(company => {
-                    const button = document.createElement('button');
-                    button.textContent = `${company} (${companyFrequency[company]})`;
-                    button.style.cssText = `background: #28a745; color: white; padding: 8px 16px; font-size: 0.9rem; border-radius: 20px; box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2); font-weight: 400;`;
-                    button.onclick = () => {
-                        searchInputs.company.value = company;
-                        performSearch();
-                    };
-                    list.appendChild(button);
-                });
-            }
+        }
 
-            function findHeader(possibleNames) {
-                return globalHeaders.find(h => possibleNames.some(name => h.toLowerCase().includes(name.toLowerCase())));
+        function clearData() {
+            if(confirm("هل أنت متأكد من مسح جميع البيانات الحالية؟")) {
+                medicinesData = [];
+                columnMapping = {};
+                document.getElementById('tableBody').innerHTML = `
+                    <tr><td colspan="5"><div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <p>تم مسح البيانات. الرجاء استيراد ملف جديد.</p>
+                    </div></td></tr>`;
+                document.getElementById('statusMsg').innerText = "تم مسح قاعدة البيانات";
+                document.getElementById('countMsg').innerText = "";
+                document.getElementById('searchCommercial').value = "";
+                document.getElementById('searchScientific').value = "";
+                document.getElementById('searchCompany').value = "";
+                document.getElementById('fileInput').value = "";
             }
+        }
 
-            function performSearch() {
-                const filters = {
-                    commercial: searchInputs.commercial.value.toLowerCase().trim(),
-                    scientific: searchInputs.scientific.value.toLowerCase().trim(),
-                    company: searchInputs.company.value.toLowerCase().trim()
-                };
-
-                const columns = {
-                    commercial: findHeader(['اسم المستحضر التجاري']),
-                    scientific: findHeader(['اسم المستحضر العلمي']),
-                    company: findHeader(['الشركة المصنعة'])
-                };
-
-                const filteredData = medicinesData.filter(item => {
-                    return (!filters.commercial || String(item[columns.commercial] || '').toLowerCase().includes(filters.commercial)) &&
-                           (!filters.scientific || String(item[columns.scientific] || '').toLowerCase().includes(filters.scientific)) &&
-                           (!filters.company || String(item[columns.company] || '').toLowerCase().includes(filters.company));
-                });
-                displayMedicines(filteredData);
-            }
-            
-            function clearSearch() {
-                Object.values(searchInputs).forEach(input => input.value = '');
-                displayMedicines(medicinesData);
-            }
-            
-            // --- Helper Functions ---
-            function toggleUI(isLoading, message = '') {
-                loadingIndicator.style.display = isLoading ? 'block' : 'none';
-                loadingIndicator.textContent = message;
-                Object.values(searchInputs).forEach(input => input.disabled = isLoading);
-                if (!isLoading) fileInput.value = ''; // Clear file input after processing
-            }
-
-            function handleError(error, context) {
-                console.error(context, error);
-                statusMessage.innerHTML = `<div class="status error">${context}: ${error.message}</div>`;
-                toggleUI(false);
-            }
-
-        })();
+        function setLoading(isLoading, msg) {
+            document.getElementById('loader').style.display = isLoading ? 'block' : 'none';
+            document.getElementById('statusMsg').innerHTML = msg;
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(b => b.disabled = isLoading);
+            const btns = document.querySelectorAll('.btn');
+            btns.forEach(b => b.style.opacity = isLoading ? '0.6' : '1');
+        }
     </script>
 </body>
 </html>
